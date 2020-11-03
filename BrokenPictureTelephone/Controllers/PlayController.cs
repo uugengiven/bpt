@@ -9,16 +9,19 @@ using Azure.Storage.Blobs;
 using BrokenPictureTelephone.Data;
 using BrokenPictureTelephone.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace BrokenPictureTelephone.Controllers
 {
     public class PlayController : Controller
     {
-        public ApplicationDbContext db;
+        private ApplicationDbContext db;
+        private IConfiguration config;
 
-        public PlayController(ApplicationDbContext theDatabase)
+        public PlayController(ApplicationDbContext theDatabase, IConfiguration configuration)
         {
             db = theDatabase;
+            config = configuration;
         }
 
         public IActionResult Index()
@@ -66,6 +69,10 @@ namespace BrokenPictureTelephone.Controllers
 
             // Azure needs your connection string like a db
             string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+            if(string.IsNullOrEmpty(connectionString))
+            {
+                connectionString = config.GetValue<string>("AzureConnectionString");
+            }
             BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
             // Azure needs to know what folder you want to save in
             BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient("bpt");
