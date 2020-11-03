@@ -5,3 +5,17 @@
 <a href="/play">Play the game</a>
 <br />
 <a href="/play/newgame">Start a new game</a>
+
+<div class="card">
+    <div class="card-header">
+        List of all games
+    </div>
+    <div class="card-body">
+        <ul>
+            @foreach(Game game in Model)
+            {
+                <li><a href="/play/show/@game.Id">Game @game.Id</a></li>
+            }
+        </ul>
+    </div>
+</div>

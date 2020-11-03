@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs;
 using BrokenPictureTelephone.Data;
 using BrokenPictureTelephone.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -45,6 +48,45 @@ namespace BrokenPictureTelephone.Controllers
             return View();
         }
 
+        public IActionResult SavePicture(string picturetext, int gameId)
+        {
+            // Get the picture in as text
+            // it is officially Base64 at the moment
+            // how do I get it into something we can save to azure?
+            // how do I save to azure?
+
+            // I need to save the picture in here somewhere
+            // I should probably get the picture in as a thing
+            string base64 = picturetext.Substring(picturetext.IndexOf(',') + 1);
+            byte[] pictureArray = Convert.FromBase64String(base64);
+
+            // Azure needs a stream and a filename, and then we can save it
+            var pictureStream = new MemoryStream(pictureArray);
+            string fileName = (Guid.NewGuid().ToString()) + ".jpg";
+
+            // Azure needs your connection string like a db
+            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+            BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+            // Azure needs to know what folder you want to save in
+            BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient("bpt");
+            // Then, you can get a blob writer thing from azure
+            containerClient.UploadBlob(fileName, pictureStream);
+
+
+            // Now it is time to save in the database
+            Entry newEntry = new Entry();
+            newEntry.PictureUrl = fileName;
+            newEntry.DateAdded = DateTime.Now;
+            newEntry.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            newEntry.GameId = gameId;
+
+            // save entry into the database
+            db.Entries.Add(newEntry);
+            db.SaveChanges();
+
+            return View();
+        }
+
         public IActionResult Save(string description)
         {
             // save description in the database under a new game
@@ -63,6 +105,31 @@ namespace BrokenPictureTelephone.Controllers
             db.SaveChanges(); // Save everything (run the sql statement that was just created)
 
             return View();
+        }
+
+        public IActionResult SaveDescription(string description, int gameId)
+        {
+            // Now it is time to save in the database
+            Entry newEntry = new Entry();
+            newEntry.Description = description;
+            newEntry.DateAdded = DateTime.Now;
+            newEntry.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            newEntry.GameId = gameId;
+
+            // save entry into the database
+            db.Entries.Add(newEntry);
+            db.SaveChanges();
+
+            return View();
+        }
+
+        public IActionResult Show(int Id)
+        {
+            // grab all of the entries from a game
+            // send them to the view so we can see them
+            var allEntries = db.Entries.Where(e => e.GameId == Id).ToList();
+
+            return View(allEntries);
         }
     }
 }

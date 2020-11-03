@@ -1,0 +1,16 @@
+﻿@model List<Entry>
+Loop through all entries
+show the description and image for each entry
+
+@foreach (Entry bleh in Model)
+{
+    if (String.IsNullOrEmpty(bleh.Description))
+    {
+        <img src="https://academydev.blob.core.windows.net/bpt/@bleh.PictureUrl" />
+    }
+    else
+    { 
+    <h2>@bleh.Description</h2>
+    }
+    <br />
+}

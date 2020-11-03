@@ -7,21 +7,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using BrokenPictureTelephone.Models;
 using System.Security.Claims;
+using BrokenPictureTelephone.Data;
 
 namespace BrokenPictureTelephone.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private ApplicationDbContext db;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext theDatabase)
         {
             _logger = logger;
+            db = theDatabase;
         }
 
         public IActionResult Index()
         {
-            return View();
+            return View(db.Games.ToList());
         }
 
         public IActionResult Privacy()

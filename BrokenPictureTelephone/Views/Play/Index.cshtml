@@ -1,14 +1,34 @@
-﻿<h1>Would you like to play a game?</h1>
+﻿@model Entry
 
-<h2>@Model.Description</h2>
-<button id="clear-canvas">Clear Drawing</button>
-<label>Line Thickness</label>
-<input type="range" value="30" min="0" max="150" id="drawing-line-width">
-<label>Color</label>
-<input type="color" value="#005E7A" id="drawing-color">
-<canvas class="drawing-area" id="c" width="500" height="500"></canvas>
+<h1>Would you like to play a game?</h1>
 
-<button>Save!</button>
+@if (String.IsNullOrEmpty(Model.Description))
+{
+    <h2>Look at this picture and give a one sentence description below</h2>
+<img src="https://academydev.blob.core.windows.net/bpt/@Model.PictureUrl" />
+<form action="/play/savedescription">
+    <input type="text" name="description" />
+    <input type="number" name="gameId" value="@Model.GameId" />
+    <button>Save!</button>
+</form>
+}
+else
+{
+    <h2>Draw the follow description in the box below</h2>
+    <h3>@Model.Description</h3>
+    <button id="clear-canvas">Clear Drawing</button>
+    <label>Line Thickness</label>
+    <input type="range" value="30" min="0" max="150" id="drawing-line-width">
+    <label>Color</label>
+    <input type="color" value="#005E7A" id="drawing-color">
+    <canvas class="drawing-area" id="c" width="500" height="500"></canvas>
+
+    <form action="/play/savepicture" method="post" enctype="multipart/form-data">
+        <input type="text" id="picturetext" name="picturetext" />
+        <input type="number" name="gameId" value="@Model.GameId" />
+        <button onclick="whenClick()">Save!</button>
+    </form>
+}
 
 @section Scripts
 {
@@ -44,5 +64,8 @@
             }
         })();
 
+        function whenClick() {
+            document.getElementById("picturetext").value = document.getElementById("c").toDataURL('image/jpeg', .8);
+        }
     </script>
 }
