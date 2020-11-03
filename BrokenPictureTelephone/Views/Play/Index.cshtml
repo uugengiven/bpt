@@ -1,0 +1,48 @@
+﻿<h1>Would you like to play a game?</h1>
+
+<h2>@Model.Description</h2>
+<button id="clear-canvas">Clear Drawing</button>
+<label>Line Thickness</label>
+<input type="range" value="30" min="0" max="150" id="drawing-line-width">
+<label>Color</label>
+<input type="color" value="#005E7A" id="drawing-color">
+<canvas class="drawing-area" id="c" width="500" height="500"></canvas>
+
+<button>Save!</button>
+
+@section Scripts
+{
+    <script>
+        (function () {
+            var $ = function (id) { return document.getElementById(id) };
+
+            var canvas = this.__canvas = new fabric.Canvas('c', {
+                isDrawingMode: true
+            });
+
+            fabric.Object.prototype.transparentCorners = false;
+
+            var drawingColorEl = $('drawing-color'),
+                drawingLineWidthEl = $('drawing-line-width'),
+                clearEl = $('clear-canvas');
+
+            clearEl.onclick = function () { canvas.clear() };
+
+            drawingColorEl.onchange = function () {
+                canvas.freeDrawingBrush.color = this.value;
+            };
+
+            drawingLineWidthEl.onchange = function () {
+                canvas.freeDrawingBrush.width = parseInt(this.value, 10) || 1;
+                this.previousSibling.innerHTML = this.value;
+            };
+
+
+            if (canvas.freeDrawingBrush) {
+                canvas.freeDrawingBrush.color = drawingColorEl.value;
+                canvas.freeDrawingBrush.width = parseInt(drawingLineWidthEl.value, 10) || 1;
+            }
+        })();
+
+    </script>
+}
