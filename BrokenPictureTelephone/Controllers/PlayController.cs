@@ -91,7 +91,7 @@ namespace BrokenPictureTelephone.Controllers
             db.Entries.Add(newEntry);
             db.SaveChanges();
 
-            return View();
+            return Redirect("/");
         }
 
         public IActionResult Save(string description)
@@ -111,7 +111,7 @@ namespace BrokenPictureTelephone.Controllers
             db.Games.Add(newgame); // Add the new game into the database (create the sql insert statement)
             db.SaveChanges(); // Save everything (run the sql statement that was just created)
 
-            return View();
+            return Redirect("/");
         }
 
         public IActionResult SaveDescription(string description, int gameId)
@@ -127,7 +127,7 @@ namespace BrokenPictureTelephone.Controllers
             db.Entries.Add(newEntry);
             db.SaveChanges();
 
-            return View();
+            return Redirect("/");
         }
 
         public IActionResult Show(int Id)
