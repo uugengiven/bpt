@@ -9,6 +9,7 @@ using Azure.Storage.Blobs;
 using BrokenPictureTelephone.Data;
 using BrokenPictureTelephone.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace BrokenPictureTelephone.Controllers
@@ -28,12 +29,21 @@ namespace BrokenPictureTelephone.Controllers
         {
             // This is the /play thing
             // and we should grab a random game that we haven't played in yet (but don't do that part yet, cause I only have one user so far)
+            // Grab a game that hasn't been shown in the past 10 minutes
             // and then show the description from t h at game
             // and let the user draw that description
             // eventually, we'll deal with what happens if we have a drawing instead
 
-            var games = db.Games.ToList();
+            var games = db
+                .Games
+                .Where(g => g.DateLastServed == null || g.DateLastServed <= DateTime.Now.AddMinutes(-10))
+                .ToList();
             // grab a random number from 0 to games.Length/games.Count
+            if(games.Count == 0)
+            {
+                // I dunno, show a "no more games found page?"
+                return Redirect("/play/nogamesfound");
+            }
             Random rnd = new Random();
             int myRandomNumber = rnd.Next(0, games.Count);
             Game myRandomGame = games[myRandomNumber]; // I now have a random game
@@ -43,7 +53,15 @@ namespace BrokenPictureTelephone.Controllers
                     .Where(e => e.GameId == myRandomGame.Id)
                     .OrderByDescending(e => e.DateAdded)
                     .FirstOrDefault();
+
+            myRandomGame.DateLastServed = DateTime.Now;
+            db.SaveChanges();
             return View(lastEntryInGame);
+        }
+        
+        public IActionResult NoGamesFound()
+        {
+            return View();
         }
 
         public IActionResult NewGame()
@@ -89,6 +107,7 @@ namespace BrokenPictureTelephone.Controllers
 
             // save entry into the database
             db.Entries.Add(newEntry);
+            db.Games.Find(gameId).DateLastServed = DateTime.Now.AddMinutes(-10);
             db.SaveChanges();
 
             return Redirect("/");
@@ -125,6 +144,7 @@ namespace BrokenPictureTelephone.Controllers
 
             // save entry into the database
             db.Entries.Add(newEntry);
+            db.Games.Find(gameId).DateLastServed = DateTime.Now.AddMinutes(-10);
             db.SaveChanges();
 
             return Redirect("/");

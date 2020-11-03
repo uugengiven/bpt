@@ -10,6 +10,7 @@ namespace BrokenPictureTelephone.Models
         public int Id { get; set; }
         public DateTime Created { get; set; }
         public bool isClosed { get; set; }
+        public DateTime DateLastServed { get; set; }
 
         public virtual List<Entry> Entries { get; set; }
     }
